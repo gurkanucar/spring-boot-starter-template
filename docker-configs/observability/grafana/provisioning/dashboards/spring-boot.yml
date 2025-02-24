@@ -1,0 +1,12 @@
+# grafana/provisioning/dashboards/spring-boot.yml
+apiVersion: 1
+
+providers:
+  - name: 'Spring Boot'
+    orgId: 1
+    folder: ''
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards

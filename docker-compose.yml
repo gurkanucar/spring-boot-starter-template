@@ -1,0 +1,187 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16.2
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./docker-configs/postgresql/servers.json:/pgadmin4/servers.json
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+
+  elasticsearch:
+    image: elasticsearch:8.12.0
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - elk-network
+
+  logstash:
+    image: logstash:8.12.0
+    volumes:
+      - ./docker-configs/elk-stack/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./docker-configs/elk-stack/logstash/pipeline:/usr/share/logstash/pipeline:ro
+    ports:
+      - "5044:5044"
+      - "5000:5000/tcp"
+      - "5000:5000/udp"
+      - "9600:9600"
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    networks:
+      - elk-network
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    image: kibana:8.12.0
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    networks:
+      - elk-network
+    depends_on:
+      - elasticsearch
+
+  prometheus:
+    image: prom/prometheus:v2.50.1
+    volumes:
+      - ./docker-configs/observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring-network
+      - elk-network
+
+  grafana:
+    image: grafana/grafana:10.3.3
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker-configs/observability/grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "3000:3000"
+    networks:
+      - monitoring-network
+      - elk-network
+    depends_on:
+      - prometheus
+
+networks:
+  elk-network:
+    driver: bridge
+  monitoring-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+  elasticsearch_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+
+#chmod -R 777 ./data
+#volumes:
+#  postgres_data:
+#    driver: local
+#    driver_opts:
+#      type: none
+#      o: bind
+#      device: ./data/postgres
+#  pgadmin_data:
+#    driver: local
+#    driver_opts:
+#      type: none
+#      o: bind
+#      device: ./data/pgadmin
+#  elasticsearch_data:
+#    driver: local
+#    driver_opts:
+#      type: none
+#      o: bind
+#      device: ./data/elasticsearch
+#  prometheus_data:
+#    driver: local
+#    driver_opts:
+#      type: none
+#      o: bind
+#      device: ./data/prometheus
+#  grafana_data:
+#    driver: local
+#    driver_opts:
+#      type: none
+#      o: bind
+#      device: ./data/grafana
+
+#Temp file system
+#volumes:
+#  postgres_data:
+#    driver: local
+#    driver_opts:
+#      type: tmpfs
+#      device: tmpfs
+#  pgadmin_data:
+#    driver: local
+#    driver_opts:
+#      type: tmpfs
+#      device: tmpfs
+#  elasticsearch_data:
+#    driver: local
+#    driver_opts:
+#      type: tmpfs
+#      device: tmpfs
+#  prometheus_data:
+#    driver: local
+#    driver_opts:
+#      type: tmpfs
+#      device: tmpfs
+#  grafana_data:
+#    driver: local
+#    driver_opts:
+#      type: tmpfs
+#      device: tmpfs

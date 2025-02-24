@@ -1,0 +1,14 @@
+{
+    "Servers": {
+        "1": {
+            "Name": "test_db",
+            "Group": "Servers",
+            "Host": "postgres",
+            "Port": 5432,
+            "MaintenanceDB": "test_db",
+            "Username": "postgres",
+            "Password": "postgres",
+            "SSLMode": "prefer"
+        }
+    }
+}
