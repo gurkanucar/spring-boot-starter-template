@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) [Trace ID %X{traceId}] %yellow([%thread]) %cyan(%logger{10}) [%file : %line] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Logstash Appender -->
+    <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <destination>localhost:5000</destination>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <customFields>{"type":"spring-boot-log","application":"spring-boot-starter-template-project"}</customFields>
+            <!-- Include the trace ID in the structured log output -->
+            <fieldNames>
+                <traceId>trace_id</traceId>
+            </fieldNames>
+            <!-- Include the logger name, thread, and line number -->
+            <includeCallerData>true</includeCallerData>
+        </encoder>
+    </appender>
+
+    <!-- Root Logger -->
+    <root level="info">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="LOGSTASH"/>
+    </root>
+
+</configuration>
