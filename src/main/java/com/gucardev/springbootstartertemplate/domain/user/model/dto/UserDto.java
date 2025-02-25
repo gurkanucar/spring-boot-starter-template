@@ -23,5 +23,6 @@ public class UserDto {
     private String name;
     private String surname;
     private Set<Role> roles = new HashSet<>();
+    private Set<String> authorities = new HashSet<>();
 
 }
