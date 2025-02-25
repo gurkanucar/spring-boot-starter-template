@@ -26,7 +26,7 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     private static final String[] IGNORED_PATHS = {
-//            "/**", // disable later
+            "/**", // disable later
             "/success",
             "/swagger-resources/**",
             "/swagger-ui.html/**",
