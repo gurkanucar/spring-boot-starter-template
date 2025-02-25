@@ -21,8 +21,8 @@ public class StarterController {
 
     private final TimeZoneHelper timeZoneHelper;
     private final LoggingSettingsHelper loggingSettingsHelper;
-    private final GitProperties gitProperties;
-    private final BuildProperties buildProperties;
+//    private final GitProperties gitProperties;
+//    private final BuildProperties buildProperties;
 
     @GetMapping({"/", "/hello"})
     public ResponseEntity<String> helloWorld() {
@@ -50,9 +50,9 @@ public class StarterController {
         return ResponseEntity.ok("Current log level: " + loggingSettingsHelper.getCurrentLogLevel());
     }
 
-    @GetMapping("/git-information")
-    public Map<String, InfoProperties> getGitProperties() {
-        return Map.of("gitProperties", gitProperties, "buildProperties", buildProperties);
-    }
+//    @GetMapping("/git-information")
+//    public Map<String, InfoProperties> getGitProperties() {
+//        return Map.of("gitProperties", gitProperties, "buildProperties", buildProperties);
+//    }
 
 }
