@@ -4,7 +4,7 @@
 ![Java](https://img.shields.io/badge/Java-21-orange.svg)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 
-A comprehensive Spring Boot starter template with built-in best practices for building robust, production-ready applications. This template includes essential dependencies and configurations for security, database access, monitoring, caching, and more.
+A comprehensive Spring Boot starter template for building robust, production-ready applications. This template includes essential dependencies and configurations for security, database access, monitoring, caching, and more.
 
 ## Table of Contents
 
@@ -26,7 +26,7 @@ A comprehensive Spring Boot starter template with built-in best practices for bu
 
 ## Features
 
-- ✅ **Clean Architecture** - Domain-driven design with clear separation of concerns
+- ✅ **Clean Architecture** - Separation of concerns
 - ✅ **Comprehensive Security** - JWT authentication, role-based access control
 - ✅ **Database Integration** - JPA/Hibernate with PostgreSQL
 - ✅ **API Documentation** - Automated OpenAPI documentation
@@ -185,16 +185,6 @@ The template supports multiple languages:
 - Default messages in `messages.properties`
 - Turkish translations in `messages_tr.properties`
 - Add more languages by creating additional properties files
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
 ## License
 
