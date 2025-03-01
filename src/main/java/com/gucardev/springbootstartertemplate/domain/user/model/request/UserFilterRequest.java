@@ -28,7 +28,6 @@ public class UserFilterRequest {
     private String email;
 
     @Schema(description = "Filter by role", example = "ADMIN")
-    @Size(max = 255)
     private Role role;
 
     @Schema(description = "Filter by specific authority", example = "READ_USER")
@@ -57,8 +56,9 @@ public class UserFilterRequest {
     private int size = 10;
 
     @Schema(description = "Sort by field", example = "username")
-    private String sortBy = "createdAt";
+    private String sortBy = "createdDate";
 
     @Schema(description = "Sort direction", example = "desc", allowableValues = {"asc", "desc"})
+    @Pattern(regexp = "^(asc|desc)$", message = "{sort.direction.pattern.exception}")
     private String sortDir = "desc";
 }

@@ -1,5 +1,6 @@
 package com.gucardev.springbootstartertemplate.domain.user.entity;
 
+import com.gucardev.springbootstartertemplate.domain.account.entity.Account;
 import com.gucardev.springbootstartertemplate.domain.common.entity.BaseEntity;
 import com.gucardev.springbootstartertemplate.domain.user.enumeration.Role;
 import jakarta.persistence.*;
@@ -26,6 +27,10 @@ public class User extends BaseEntity {
     private String email;
     private String name;
     private String surname;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private Account account;
+
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
