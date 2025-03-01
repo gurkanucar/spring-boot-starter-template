@@ -32,6 +32,7 @@ public class SearchAccountsUseCase implements UseCaseWithParamsAndReturn<Account
 
         Specification<Account> spec = Specification.where(AccountSpecification.hasUsernameLike(params.getUsername()))
                 .and(AccountSpecification.hasAccountNumberLike(params.getAccountNumber()))
+                .and(AccountSpecification.hasAccountType(params.getAccountType()))
                 .and(AccountSpecification.createdBetween(params.getStartDate(), params.getEndDate()));
 
         Page<Account> accountsPage = accountRepository.findAll(spec, pageable);

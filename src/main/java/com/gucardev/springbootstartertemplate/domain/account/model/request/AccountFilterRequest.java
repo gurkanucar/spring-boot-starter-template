@@ -16,7 +16,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class AccountFilterRequest extends BaseFilterRequest {
 
-    @Schema(description = "Filter by account number", example = "John")
+    @Schema(description = "Filter by account number", example = "82e923476b5449d5b385e7a6fdf5ce9e")
     @Size(max = 255)
     private String accountNumber;
 

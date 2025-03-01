@@ -1,6 +1,7 @@
 package com.gucardev.springbootstartertemplate.domain.account.repository.specification;
 
 import com.gucardev.springbootstartertemplate.domain.account.entity.Account;
+import com.gucardev.springbootstartertemplate.domain.account.enumeration.AccountType;
 import com.gucardev.springbootstartertemplate.domain.user.entity.User;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
@@ -22,6 +23,11 @@ public class AccountSpecification {
     public static Specification<Account> hasAccountNumberLike(String accountNumber) {
         return (root, query, cb) -> accountNumber == null ? null :
                 cb.like(cb.lower(root.get("accountNumber")), "%" + accountNumber.toLowerCase() + "%");
+    }
+
+    public static Specification<Account> hasAccountType(AccountType accountType) {
+        return (root, query, cb) -> accountType == null ? null :
+                cb.equal(root.get("accountType"), accountType);
     }
 
     public static Specification<Account> createdBetween(LocalDate start, LocalDate end) {
