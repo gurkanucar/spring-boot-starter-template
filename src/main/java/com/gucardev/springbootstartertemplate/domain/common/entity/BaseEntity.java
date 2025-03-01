@@ -22,7 +22,7 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEntity {
 
-// Long id
+//    Long id
 //    @Id
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
 //    @EqualsAndHashCode.Include
