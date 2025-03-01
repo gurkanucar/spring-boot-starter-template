@@ -27,8 +27,7 @@ public class SearchUsersUseCase implements UseCaseWithParamsAndReturn<UserFilter
     @Override
     public Page<UserDto> execute(UserFilterRequest params) {
 
-        Sort.Direction direction = params.getSortDir().equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Pageable pageable = PageRequest.of(params.getPage(), params.getSize(), Sort.by(direction, params.getSortBy()));
+        Pageable pageable = PageRequest.of(params.getPage(), params.getSize(), Sort.by(params.getSortDir(), params.getSortBy()));
 
         Specification<User> spec = Specification.where(UserSpecification.hasNameLike(params.getName()))
                 .and(UserSpecification.hasSurnameLike(params.getSurname()))

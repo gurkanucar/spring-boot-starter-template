@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 import static com.gucardev.springbootstartertemplate.infrastructure.exception.helper.ExceptionUtil.buildException;
 
 @Slf4j
@@ -28,10 +30,11 @@ public class CreateAccountUseCase implements UseCaseWithParamsAndReturn<AccountC
     @Override
     @Transactional
     public AccountDto execute(AccountCreateRequest params) {
-        log.debug("Creating new account with number: {}", params.getAccountNumber());
+        var accNumber = UUID.randomUUID().toString().replace("-", "");
+        log.debug("Creating new account with number: {}", accNumber);
 
         User user = getUserByIdUseCase.execute(params.getUserId())
-                .orElseThrow(() -> buildException(ExceptionMessage.USER_NOT_FOUND_EXCEPTION));
+                .orElseThrow(() -> buildException(ExceptionMessage.USER_NOT_FOUND_EXCEPTION, params.getUserId()));
 
         // Check if user already has an account
         if (user.getAccount() != null) {
@@ -39,6 +42,8 @@ public class CreateAccountUseCase implements UseCaseWithParamsAndReturn<AccountC
         }
 
         Account newAccount = accountMapper.toEntity(params);
+        newAccount.setBalance(params.getInitialBalance());
+        newAccount.setAccountNumber(accNumber);
         newAccount.setUser(user);
 
         Account savedAccount = accountRepository.save(newAccount);
