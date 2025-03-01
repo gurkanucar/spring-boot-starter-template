@@ -3,6 +3,7 @@ package com.gucardev.springbootstartertemplate.domain.account.model.request;
 import com.gucardev.springbootstartertemplate.domain.account.enumeration.AccountType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,7 +19,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class AccountCreateRequest {
 
-
+    @Schema(description = "Initial balance amount", example = "10.20", type = "number")
     @NotNull(message = "Initial balance is required")
     @Positive(message = "Initial balance must be positive")
     private BigDecimal initialBalance;
@@ -26,12 +27,17 @@ public class AccountCreateRequest {
     @Schema(
             description = "account type",
             example = "SAVINGS",
-            type = "string"
+            type = "string",
+            allowableValues = {"CHECKING", "SAVINGS", "CREDIT", "INVESTMENT"}
     )
+    @Pattern(regexp = "^(CHECKING|SAVINGS|CREDIT|INVESTMENT)$", message = "{accountType.pattern.exception}")
     @NotNull(message = "Account type is required")
-    private AccountType accountType;
+    private String accountType;
 
     @NotNull(message = "User ID is required")
     private UUID userId;
 
+    public AccountType getAccountType() {
+        return accountType == null ? null : AccountType.valueOf(accountType);
+    }
 }

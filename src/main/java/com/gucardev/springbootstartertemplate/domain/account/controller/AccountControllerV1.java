@@ -36,7 +36,7 @@ public class AccountControllerV1 {
             description = "This api creates a new account and return created account"
     )
     @PostMapping
-    public ResponseEntity<AccountDto> createAccount(@RequestBody AccountCreateRequest accountCreateRequest) {
+    public ResponseEntity<AccountDto> createAccount(@Valid @RequestBody AccountCreateRequest accountCreateRequest) {
         return ResponseEntity.ok(createAccountUseCase.execute(accountCreateRequest));
     }
 

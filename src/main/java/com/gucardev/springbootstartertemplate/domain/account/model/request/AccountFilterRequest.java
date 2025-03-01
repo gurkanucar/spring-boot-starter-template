@@ -36,7 +36,7 @@ public class AccountFilterRequest extends BaseFilterRequest {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate endDate;
 
-    public AccountType getRole() {
+    public AccountType getAccountType() {
         return accountType == null ? null : AccountType.valueOf(accountType);
     }
 }
