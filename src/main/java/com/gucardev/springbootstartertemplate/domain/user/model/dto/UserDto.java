@@ -1,6 +1,7 @@
 package com.gucardev.springbootstartertemplate.domain.user.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.gucardev.springbootstartertemplate.domain.common.model.dto.BaseDto;
 import com.gucardev.springbootstartertemplate.domain.user.enumeration.Role;
 import lombok.*;
 
@@ -12,8 +13,7 @@ import java.util.UUID;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class UserDto {
+public class UserDto extends BaseDto {
 
     private UUID id;
     private String username;

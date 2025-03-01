@@ -25,16 +25,16 @@ public abstract class BaseEntity {
 //    Long id
 //    @Id
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    @EqualsAndHashCode.Include
-//    @ToString.Include
 //    private Long id;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(columnDefinition = "uuid", updatable = false, nullable = false)
+    @EqualsAndHashCode.Include
+    @ToString.Include
     private UUID id;
 
-    //    @JsonSerialize(using = CustomLocalDateTimeSerializer.class)
+    //@JsonSerialize(using = CustomLocalDateTimeSerializer.class)
     @CreatedDate
     private LocalDateTime createdDate;
 

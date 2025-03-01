@@ -5,6 +5,7 @@ import com.gucardev.springbootstartertemplate.domain.user.enumeration.Role;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -31,10 +32,13 @@ public class UserSpecification {
                 cb.isMember(role, root.get("roles"));
     }
 
-    public static Specification<User> createdBetween(LocalDateTime start, LocalDateTime end) {
+    public static Specification<User> createdBetween(LocalDate start, LocalDate end) {
         return (root, query, cb) -> {
             if (start == null || end == null) return null;
-            return cb.between(root.get("createdDate"), start, end);
+            // Convert LocalDate to LocalDateTime for proper comparison
+            LocalDateTime startDateTime = start.atStartOfDay();
+            LocalDateTime endDateTime = end.atTime(23, 59, 59, 999999999);
+            return cb.between(root.get("createdDate"), startDateTime, endDateTime);
         };
     }
 

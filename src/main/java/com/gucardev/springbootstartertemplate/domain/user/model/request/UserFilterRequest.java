@@ -1,12 +1,12 @@
 package com.gucardev.springbootstartertemplate.domain.user.model.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.gucardev.springbootstartertemplate.domain.user.enumeration.Role;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.*;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -34,13 +34,13 @@ public class UserFilterRequest {
     @Size(max = 255)
     private String authority;
 
-    @Schema(description = "Filter users created after this date", example = "2024-01-01T00:00:00")
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private LocalDateTime startDate;
+    @Schema(description = "Filter users created after this date", example = "2024-01-01")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDate startDate;
 
-    @Schema(description = "Filter users created before this date", example = "2024-12-31T23:59:59")
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private LocalDateTime endDate;
+    @Schema(description = "Filter users created before this date", example = "2025-12-31")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDate endDate;
 
     @Schema(description = "Page number (starts from 0)", example = "0")
     @NotNull

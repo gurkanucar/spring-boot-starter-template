@@ -55,7 +55,7 @@ public class UserControllerV1 {
             description = "This api retrieves user by id"
     )
     @GetMapping("/{uuid}")
-    public ResponseEntity<UserDto> searchUsers(@Valid @NotNull @PathVariable UUID uuid) {
+    public ResponseEntity<UserDto> getUserById(@Valid @NotNull @PathVariable UUID uuid) {
         return getUserByIdUseCase.execute(uuid)
                 .map(userMapper::toDto).map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
