@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
@@ -17,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 @ExcludeFromAspect
 @Component
 @Slf4j
+@Order(1)
 public class LoggerOncePerRequestFilter extends OncePerRequestFilter {
 
   private static final String[] IGNORED_ENDPOINTS = {"/download", "/health", "/status"};
