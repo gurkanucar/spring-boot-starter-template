@@ -2,14 +2,16 @@ package com.gucardev.springbootstartertemplate.domain.account.repository.specifi
 
 import com.gucardev.springbootstartertemplate.domain.account.entity.Account;
 import com.gucardev.springbootstartertemplate.domain.account.enumeration.AccountType;
-import com.gucardev.springbootstartertemplate.domain.common.enumeration.DeletedStatus;
 import com.gucardev.springbootstartertemplate.domain.common.repository.specification.BaseSpecification;
+import com.gucardev.springbootstartertemplate.domain.transaction.entity.Transaction;
 import com.gucardev.springbootstartertemplate.domain.user.entity.User;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.jpa.domain.Specification;
 
-public class AccountSpecification extends  BaseSpecification {
+import java.util.UUID;
+
+public class AccountSpecification extends BaseSpecification {
 
     public static Specification<Account> hasUsernameLike(String username) {
         return (root, query, cb) -> {
@@ -28,5 +30,11 @@ public class AccountSpecification extends  BaseSpecification {
                 cb.equal(root.get("accountType"), accountType);
     }
 
+    public static Specification<Transaction> byAccountId(UUID accountId) {
+        return (root, query, cb) -> {
+            if (accountId == null) return null;
+            return cb.equal(root.get("account").get("id"), accountId);
+        };
+    }
 
 }

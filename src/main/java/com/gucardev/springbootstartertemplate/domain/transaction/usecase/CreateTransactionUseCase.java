@@ -3,7 +3,6 @@ package com.gucardev.springbootstartertemplate.domain.transaction.usecase;
 import com.gucardev.springbootstartertemplate.domain.account.model.request.AccountBalanceUpdateRequest;
 import com.gucardev.springbootstartertemplate.domain.account.usecase.GetAccountByIdUseCase;
 import com.gucardev.springbootstartertemplate.domain.account.usecase.UpdateAccountBalanceUseCase;
-import com.gucardev.springbootstartertemplate.domain.category.entity.Category;
 import com.gucardev.springbootstartertemplate.domain.transaction.entity.Transaction;
 import com.gucardev.springbootstartertemplate.domain.transaction.mapper.TransactionMapper;
 import com.gucardev.springbootstartertemplate.domain.transaction.model.dto.TransactionDto;
@@ -14,9 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service

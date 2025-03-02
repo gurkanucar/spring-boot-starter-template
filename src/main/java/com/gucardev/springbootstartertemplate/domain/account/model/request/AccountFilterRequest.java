@@ -28,11 +28,11 @@ public class AccountFilterRequest extends BaseFilterRequest {
     @Pattern(regexp = "^(CHECKING|SAVINGS|CREDIT|INVESTMENT)$", message = "{role.pattern.exception}")
     private String accountType;
 
-    @Schema(description = "Filter users created after this date", example = "2024-01-01")
+    @Schema(description = "Filter account created after this date", example = "2024-01-01")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate startDate;
 
-    @Schema(description = "Filter users created before this date", example = "2025-12-31")
+    @Schema(description = "Filter account created before this date", example = "2025-12-31")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate endDate;
 

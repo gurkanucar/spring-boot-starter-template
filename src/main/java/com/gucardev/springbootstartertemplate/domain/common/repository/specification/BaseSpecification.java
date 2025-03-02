@@ -1,6 +1,7 @@
 package com.gucardev.springbootstartertemplate.domain.common.repository.specification;
 
 import com.gucardev.springbootstartertemplate.domain.common.enumeration.DeletedStatus;
+import jakarta.persistence.criteria.Path;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
@@ -57,4 +58,5 @@ public class BaseSpecification {
             return cb.between(root.get("createdDate"), startDateTime, endDateTime);
         };
     }
+
 }
