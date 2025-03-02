@@ -30,7 +30,7 @@ public class UpdateAccountBalanceUseCase implements UseCaseWithParamsAndReturn<A
                 params.getAccountId(), params.getAmount(), params.getTransactionType());
 
         // Get account
-        Account account = accountRepository.findById(params.getAccountId())
+        Account account = accountRepository.findByIdWithPessimisticLock(params.getAccountId())
                 .orElseThrow(() -> buildException(ExceptionMessage.NOT_FOUND_EXCEPTION, params.getAccountId()));
 
         BigDecimal currentBalance = account.getBalance();

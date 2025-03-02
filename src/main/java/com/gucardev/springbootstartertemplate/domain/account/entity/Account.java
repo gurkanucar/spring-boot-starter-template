@@ -21,6 +21,10 @@ import java.util.List;
 @NoArgsConstructor
 public class Account extends BaseEntity {
 
+    // version for optimistic locking
+    @Version
+    private Long version;
+
     @Column(nullable = false, unique = true)
     private String accountNumber;
 
