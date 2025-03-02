@@ -5,6 +5,7 @@ import com.gucardev.springbootstartertemplate.domain.account.model.dto.AccountDt
 import com.gucardev.springbootstartertemplate.domain.account.model.request.AccountCreateRequest;
 import com.gucardev.springbootstartertemplate.domain.account.model.request.AccountFilterRequest;
 import com.gucardev.springbootstartertemplate.domain.account.usecase.CreateAccountUseCase;
+import com.gucardev.springbootstartertemplate.domain.account.usecase.DeleteAccountByIdUseCase;
 import com.gucardev.springbootstartertemplate.domain.account.usecase.GetAccountAndUserDtoByIdUseCase;
 import com.gucardev.springbootstartertemplate.domain.account.usecase.SearchAccountsUseCase;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,15 +31,7 @@ public class AccountControllerV1 {
     private final CreateAccountUseCase createAccountUseCase;
     private final SearchAccountsUseCase searchAccountsUseCase;
     private final GetAccountAndUserDtoByIdUseCase getAccountAndUserDtoByIdUseCase;
-
-    @Operation(
-            summary = "Create a new account",
-            description = "This api creates a new account and return created account"
-    )
-    @PostMapping
-    public ResponseEntity<AccountDto> createAccount(@Valid @RequestBody AccountCreateRequest accountCreateRequest) {
-        return ResponseEntity.ok(createAccountUseCase.execute(accountCreateRequest));
-    }
+    private final DeleteAccountByIdUseCase deleteAccountByIdUseCase;
 
     @Operation(
             summary = "Search accounts",
@@ -57,6 +50,26 @@ public class AccountControllerV1 {
     public ResponseEntity<AccountDtoWithUser> getAccountById(@Valid @NotNull @PathVariable UUID uuid) {
         return ResponseEntity.ok(getAccountAndUserDtoByIdUseCase.execute(uuid));
     }
+
+    @Operation(
+            summary = "Create a new account",
+            description = "This api creates a new account and return created account"
+    )
+    @PostMapping
+    public ResponseEntity<AccountDto> createAccount(@Valid @RequestBody AccountCreateRequest accountCreateRequest) {
+        return ResponseEntity.ok(createAccountUseCase.execute(accountCreateRequest));
+    }
+
+    @Operation(
+            summary = "Delete account by id",
+            description = "This api deletes account by id"
+    )
+    @DeleteMapping("/{uuid}")
+    public ResponseEntity<Void> deleteAccountById(@Valid @NotNull @PathVariable UUID uuid) {
+        deleteAccountByIdUseCase.execute(uuid);
+        return ResponseEntity.ok().build();
+    }
+
 
 
 }

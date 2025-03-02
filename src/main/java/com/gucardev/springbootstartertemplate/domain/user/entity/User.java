@@ -28,9 +28,8 @@ public class User extends BaseEntity {
     private String name;
     private String surname;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Account account;
-
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
@@ -38,6 +37,7 @@ public class User extends BaseEntity {
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id")
     )
+
     @Column(name = "role")
     private Set<Role> roles = new HashSet<>();
 

@@ -1,16 +1,15 @@
 package com.gucardev.springbootstartertemplate.domain.user.repository.specification;
 
+import com.gucardev.springbootstartertemplate.domain.common.repository.specification.BaseSpecification;
 import com.gucardev.springbootstartertemplate.domain.user.entity.User;
 import com.gucardev.springbootstartertemplate.domain.user.enumeration.Role;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
-public class UserSpecification {
+public class UserSpecification extends BaseSpecification {
 
     public static Specification<User> hasNameLike(String name) {
         return (root, query, cb) -> name == null ? null :
@@ -32,15 +31,6 @@ public class UserSpecification {
                 cb.isMember(role, root.get("roles"));
     }
 
-    public static Specification<User> createdBetween(LocalDate start, LocalDate end) {
-        return (root, query, cb) -> {
-            if (start == null || end == null) return null;
-            // Convert LocalDate to LocalDateTime for proper comparison
-            LocalDateTime startDateTime = start.atStartOfDay();
-            LocalDateTime endDateTime = end.atTime(23, 59, 59, 999999999);
-            return cb.between(root.get("createdDate"), startDateTime, endDateTime);
-        };
-    }
 
     public static Specification<User> hasAuthority(String authorityName) {
         return (root, query, cb) -> {

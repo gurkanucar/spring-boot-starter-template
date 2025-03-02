@@ -6,6 +6,7 @@ import com.gucardev.springbootstartertemplate.domain.account.model.dto.AccountDt
 import com.gucardev.springbootstartertemplate.domain.account.model.request.AccountFilterRequest;
 import com.gucardev.springbootstartertemplate.domain.account.repository.AccountRepository;
 import com.gucardev.springbootstartertemplate.domain.account.repository.specification.AccountSpecification;
+import com.gucardev.springbootstartertemplate.domain.common.enumeration.DeletedStatus;
 import com.gucardev.springbootstartertemplate.infrastructure.usecase.UseCaseWithParamsAndReturn;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,10 +31,12 @@ public class SearchAccountsUseCase implements UseCaseWithParamsAndReturn<Account
 
         Pageable pageable = PageRequest.of(params.getPage(), params.getSize(), Sort.by(params.getSortDir(), params.getSortBy()));
 
-        Specification<Account> spec = Specification.where(AccountSpecification.hasUsernameLike(params.getUsername()))
+        Specification<Account> spec = Specification
+                .where(AccountSpecification.hasUsernameLike(params.getUsername()))
                 .and(AccountSpecification.hasAccountNumberLike(params.getAccountNumber()))
                 .and(AccountSpecification.hasAccountType(params.getAccountType()))
-                .and(AccountSpecification.createdBetween(params.getStartDate(), params.getEndDate()));
+                .and(AccountSpecification.createdBetween(params.getStartDate(), params.getEndDate()))
+                .and(AccountSpecification.deleted(DeletedStatus.DELETED_FALSE));
 
         Page<Account> accountsPage = accountRepository.findAll(spec, pageable);
         return accountsPage.map(accountMapper::toDto);

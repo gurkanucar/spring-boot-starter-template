@@ -34,7 +34,6 @@ public abstract class BaseEntity {
     @ToString.Include
     private UUID id;
 
-    //@JsonSerialize(using = CustomLocalDateTimeSerializer.class)
     @CreatedDate
     private LocalDateTime createdDate;
 
@@ -46,4 +45,9 @@ public abstract class BaseEntity {
 
     @LastModifiedBy
     private String lastModifiedBy;
+
+    private String deleteReason;
+
+    private boolean deleted = false;
+
 }

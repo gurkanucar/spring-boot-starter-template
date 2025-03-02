@@ -2,15 +2,14 @@ package com.gucardev.springbootstartertemplate.domain.account.repository.specifi
 
 import com.gucardev.springbootstartertemplate.domain.account.entity.Account;
 import com.gucardev.springbootstartertemplate.domain.account.enumeration.AccountType;
+import com.gucardev.springbootstartertemplate.domain.common.enumeration.DeletedStatus;
+import com.gucardev.springbootstartertemplate.domain.common.repository.specification.BaseSpecification;
 import com.gucardev.springbootstartertemplate.domain.user.entity.User;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
-public class AccountSpecification {
+public class AccountSpecification extends  BaseSpecification {
 
     public static Specification<Account> hasUsernameLike(String username) {
         return (root, query, cb) -> {
@@ -21,8 +20,7 @@ public class AccountSpecification {
     }
 
     public static Specification<Account> hasAccountNumberLike(String accountNumber) {
-        return (root, query, cb) -> accountNumber == null ? null :
-                cb.like(cb.lower(root.get("accountNumber")), "%" + accountNumber.toLowerCase() + "%");
+        return BaseSpecification.like("accountNumber", accountNumber);
     }
 
     public static Specification<Account> hasAccountType(AccountType accountType) {
@@ -30,14 +28,5 @@ public class AccountSpecification {
                 cb.equal(root.get("accountType"), accountType);
     }
 
-    public static Specification<Account> createdBetween(LocalDate start, LocalDate end) {
-        return (root, query, cb) -> {
-            if (start == null || end == null) return null;
-            // Convert LocalDate to LocalDateTime for proper comparison
-            LocalDateTime startDateTime = start.atStartOfDay();
-            LocalDateTime endDateTime = end.atTime(23, 59, 59, 999999999);
-            return cb.between(root.get("createdDate"), startDateTime, endDateTime);
-        };
-    }
 
 }
