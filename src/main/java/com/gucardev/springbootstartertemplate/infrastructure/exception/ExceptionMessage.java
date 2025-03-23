@@ -12,7 +12,7 @@ public enum ExceptionMessage {
     ACCESS_DENIED_EXCEPTION("messages.error.access_denied_exception", HttpStatus.UNAUTHORIZED),
     FORBIDDEN_EXCEPTION("messages.error.forbidden_exception", HttpStatus.FORBIDDEN),
     AUTHENTICATION_FAILED("messages.error.authentication_failed", HttpStatus.UNAUTHORIZED),
-
+    TOO_MANY_REQUESTS_EXCEPTION("messages.error.too_many_requests",HttpStatus.TOO_MANY_REQUESTS),
     INSUFFICIENT_FUNDS_EXCEPTION("messages.error.insufficient_fund", HttpStatus.UNAUTHORIZED);
 
     private final String key;

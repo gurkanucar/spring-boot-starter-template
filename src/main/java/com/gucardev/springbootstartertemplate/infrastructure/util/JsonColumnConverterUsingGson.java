@@ -10,7 +10,7 @@ import java.util.Map;
 //  @Convert(converter = JsonConverter.class)
 
 @Converter
-public class JsonColumnConverter implements AttributeConverter<Object, String> {
+public class JsonColumnConverterUsingGson implements AttributeConverter<Object, String> {
 
     @Override
     public String convertToDatabaseColumn(Object o) {

@@ -1,19 +1,31 @@
 package com.gucardev.springbootstartertemplate.domain.common.repository.specification;
 
 import com.gucardev.springbootstartertemplate.domain.common.enumeration.DeletedStatus;
+import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Path;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 
 public class BaseSpecification {
+
+//    public static <T> Specification<T> like(String fieldName, String value) {
+//        return (root, query, cb) -> {
+//            if (value == null || value.isEmpty()) return null;
+//            return cb.like(cb.lower(root.get(fieldName)), "%" + value.toLowerCase() + "%");
+//        };
+//    }
 
     public static <T> Specification<T> like(String fieldName, String value) {
         return (root, query, cb) -> {
             if (value == null || value.isEmpty()) return null;
-            return cb.like(cb.lower(root.get(fieldName)), "%" + value.toLowerCase() + "%");
+            Expression<String> fieldExpression = root.get(fieldName);
+            Expression<String> lowerField = cb.lower(fieldExpression);
+            String lowerCaseValue = value.toLowerCase(new Locale("tr", "TR"));
+            return cb.like(lowerField, "%" + lowerCaseValue + "%");
         };
     }
 

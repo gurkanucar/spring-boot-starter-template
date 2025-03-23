@@ -5,12 +5,15 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.sql.Types;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -27,11 +30,22 @@ public abstract class BaseEntity {
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
 //    private Long id;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(columnDefinition = "uuid", updatable = false, nullable = false)
+    // uuid works with postgresql
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.AUTO)
+//    @Column(columnDefinition = "uuid", updatable = false, nullable = false)
+//    @EqualsAndHashCode.Include
+//    @ToString.Include
+//    private UUID id;
+
+    // uuid works with mysql
     @EqualsAndHashCode.Include
     @ToString.Include
+    @Id
+    @Column(nullable = false, updatable = false, columnDefinition = "char(36)")
+    @JdbcTypeCode(Types.CHAR)
+    @GeneratedValue
+    @UuidGenerator
     private UUID id;
 
     @CreatedDate

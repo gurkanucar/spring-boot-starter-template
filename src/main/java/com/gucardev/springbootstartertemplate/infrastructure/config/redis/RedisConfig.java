@@ -3,10 +3,8 @@ package com.gucardev.springbootstartertemplate.infrastructure.config.redis;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
@@ -20,7 +18,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
 
-@EnableCaching
+//@EnableCaching
 @Configuration
 @RequiredArgsConstructor
 public class RedisConfig {
@@ -66,7 +64,8 @@ public class RedisConfig {
         return template;
     }
 
-    @Primary
+    // disabled because we are using caffeine cache
+//    @Primary
     @Bean
     public RedisCacheManager cacheManager() {
         RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()

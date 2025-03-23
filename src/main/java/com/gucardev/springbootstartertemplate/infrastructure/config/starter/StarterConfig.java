@@ -1,6 +1,5 @@
 package com.gucardev.springbootstartertemplate.infrastructure.config.starter;
 
-import com.gucardev.springbootstartertemplate.infrastructure.util.CRLFLogConverter;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +47,6 @@ public class StarterConfig implements CommandLineRunner {
         String loggingInfo = String.format("Root Log Level: %s", loggingSettingsHelper.getCurrentLogLevel());
 
         log.info(
-                CRLFLogConverter.CRLF_SAFE_MARKER,
                 """
                         
                         ----------------------------------------------------------
