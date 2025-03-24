@@ -51,8 +51,8 @@ public class SecurityConfig {
             "/actuator/metrics"
     };
 
-    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
-    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final AccessDeniedHandler accessDeniedHandler;
+    private final AuthenticationEntryPoint authenticationEntryPoint;
 
     @Bean
     public AuthenticationManager authenticationManager(
@@ -74,8 +74,8 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .exceptionHandling(x -> x
-                        .accessDeniedHandler(jwtAccessDeniedHandler)
-                        .authenticationEntryPoint(jwtAuthenticationEntryPoint))
+                        .accessDeniedHandler(accessDeniedHandler)
+                        .authenticationEntryPoint(authenticationEntryPoint))
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(x -> x.anyRequest().authenticated());
         return httpSecurity.build();

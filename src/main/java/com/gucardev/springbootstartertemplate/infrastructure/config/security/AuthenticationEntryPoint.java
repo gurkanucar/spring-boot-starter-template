@@ -3,21 +3,23 @@ package com.gucardev.springbootstartertemplate.infrastructure.config.security;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
-public class JwtAccessDeniedHandler implements AccessDeniedHandler {
+public class AuthenticationEntryPoint implements org.springframework.security.web.AuthenticationEntryPoint {
 
 
   @Override
-  public void handle(
+  public void commence(
       HttpServletRequest request,
       HttpServletResponse response,
-      AccessDeniedException accessDeniedException) {
+      AuthenticationException authException)
+      throws IOException {
     response.setContentType("application/json");
-    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
   }
 }
