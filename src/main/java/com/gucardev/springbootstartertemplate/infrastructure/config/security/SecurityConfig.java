@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.util.Arrays;
@@ -26,7 +27,6 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     private static final String[] IGNORED_PATHS = {
-            "/**", // disable later
             "/success",
             "/swagger-resources/**",
             "/swagger-ui.html/**",
@@ -44,15 +44,12 @@ public class SecurityConfig {
             "/h2-console/**",
             // Actuator endpoints
             "/git-information",
-            "/actuator/**",
-            "/actuator/prometheus",
-            "/actuator/health",
-            "/actuator/info",
-            "/actuator/metrics"
+            "/actuator/**"
     };
 
     private final AccessDeniedHandler accessDeniedHandler;
     private final AuthenticationEntryPoint authenticationEntryPoint;
+    private final JwtFilter jwtFilter;
 
     @Bean
     public AuthenticationManager authenticationManager(
@@ -77,7 +74,9 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler)
                         .authenticationEntryPoint(authenticationEntryPoint))
                 .cors(Customizer.withDefaults())
-                .authorizeHttpRequests(x -> x.anyRequest().authenticated());
+                .authorizeHttpRequests(x -> x.anyRequest().authenticated())
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+        ;
         return httpSecurity.build();
     }
 
