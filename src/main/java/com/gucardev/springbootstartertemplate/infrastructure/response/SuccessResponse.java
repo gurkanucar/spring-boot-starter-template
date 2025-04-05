@@ -3,34 +3,27 @@ package com.gucardev.springbootstartertemplate.infrastructure.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.gucardev.springbootstartertemplate.infrastructure.config.message.MessageUtil;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-
-//// Using default messages
-//SuccessResponse.ok(data);
-//
-//// Using custom literal message
-//SuccessResponse.ok(data, "Operation was successful");
-//
-//// Using message key
-//SuccessResponse.ok(data, "response.success.custom");
-//
-//// Using the builder with message key
-//return ResponseEntity.ok(
-//        SuccessResponse.<User>builder()
-//        .status(HttpStatus.OK)
-//        .messageKey("response.user.created")
-//        .data(user)
-//        .build()
-//);
+//public ResponseEntity<SuccessResponse<?>> getTimezone() {
+//    return SuccessResponse.builder()
+//            .message("success")
+//            .data(timeZoneHelper.getCurrentTimeZoneInfo())
+//            .status(HttpStatus.OK)
+//            .header("X-Custom-Header", "Custom-Value")
+//            .header("X-Request-ID", UUID.randomUUID().toString())
+//            .buildResponseEntity();
+//}
 
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -42,25 +35,30 @@ import java.util.Date;
         "time"
 })
 @ToString
-@AllArgsConstructor
 @NoArgsConstructor
 public class SuccessResponse<T> {
 
-    private boolean isError = false;
-    private HttpStatus status;
+    private final boolean isError = false;
+    private HttpStatus status = HttpStatus.OK;
     private String message;
     private T data;
-    private String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+    private final String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+
+    private SuccessResponse(HttpStatus status, String message, T data) {
+        this.status = status;
+        this.message = message;
+        this.data = data;
+    }
 
     public static <T> SuccessResponseBuilder<T> builder() {
         return new SuccessResponseBuilder<>();
     }
 
     public static class SuccessResponseBuilder<T> {
-        private HttpStatus status;
+        private HttpStatus status = HttpStatus.OK;
         private String message;
         private T data;
-        private String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        private final Map<String, String> headers = new HashMap<>();
 
         SuccessResponseBuilder() {
         }
@@ -80,73 +78,43 @@ public class SuccessResponse<T> {
             return this;
         }
 
-        public SuccessResponseBuilder<T> data(T data) {
-            this.data = data;
+        public <D> SuccessResponseBuilder<D> data(D data) {
+            @SuppressWarnings("unchecked")
+            SuccessResponseBuilder<D> builder = (SuccessResponseBuilder<D>) this;
+            builder.data = data;
+            return builder;
+        }
+
+        public SuccessResponseBuilder<T> header(String key, String value) {
+            this.headers.put(key, value);
             return this;
         }
 
-        public SuccessResponseBuilder<T> time(String time) {
-            this.time = time;
+        public SuccessResponseBuilder<T> headers(Map<String, String> headers) {
+            this.headers.putAll(headers);
             return this;
         }
 
         public SuccessResponse<T> build() {
-            boolean isError = false;
-            return new SuccessResponse<>(isError, status, message, data, time);
+            if (message == null) {
+                message = MessageUtil.getMessage("response.success.default");
+            }
+            return new SuccessResponse<>(status, message, data);
         }
-    }
 
-    public static <T> ResponseEntity<SuccessResponse<T>> ok(T data) {
-        return ResponseEntity.ok(
-                SuccessResponse.<T>builder()
-                        .status(HttpStatus.OK)
-                        .messageKey("response.success.default")
-                        .data(data)
-                        .build()
-        );
-    }
 
-    public static <T> ResponseEntity<SuccessResponse<T>> ok(T data, String message) {
-        return ResponseEntity.ok(
-                SuccessResponse.<T>builder()
-                        .status(HttpStatus.OK)
-                        .message(message.startsWith("response.") ? MessageUtil.getMessage(message) : message)
-                        .data(data)
-                        .build()
-        );
-    }
+        public ResponseEntity<SuccessResponse<?>> buildResponseEntity() {
+            if (message == null) {
+                message = MessageUtil.getMessage("response.success.default");
+            }
 
-    public static <T> ResponseEntity<SuccessResponse<T>> created(T data) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-                SuccessResponse.<T>builder()
-                        .status(HttpStatus.CREATED)
-                        .messageKey("response.success.created")
-                        .data(data)
-                        .build()
-        );
-    }
+            HttpHeaders httpHeaders = new HttpHeaders();
+            headers.forEach(httpHeaders::add);
 
-    public static <T> ResponseEntity<SuccessResponse<T>> created(T data, String message) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-                SuccessResponse.<T>builder()
-                        .status(HttpStatus.CREATED)
-                        .message(message.startsWith("response.") ? MessageUtil.getMessage(message) : message)
-                        .data(data)
-                        .build()
-        );
-    }
+            return ResponseEntity.status(status)
+                    .headers(httpHeaders)
+                    .body(new SuccessResponse<>(status, message, data));
+        }
 
-    public static <T> ResponseEntity<SuccessResponse<T>> buildResponse(HttpStatus status, T data, String message) {
-        return ResponseEntity.status(status).body(
-                SuccessResponse.<T>builder()
-                        .status(status)
-                        .message(message.startsWith("response.") ? MessageUtil.getMessage(message) : message)
-                        .data(data)
-                        .build()
-        );
-    }
-
-    public static <T> ResponseEntity<SuccessResponse<T>> buildResponse(HttpStatus status, T data) {
-        return buildResponse(status, data, MessageUtil.getMessage("response.success.default"));
     }
 }
