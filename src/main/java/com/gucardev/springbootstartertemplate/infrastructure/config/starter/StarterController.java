@@ -1,18 +1,15 @@
 package com.gucardev.springbootstartertemplate.infrastructure.config.starter;
 
 
+import com.gucardev.springbootstartertemplate.infrastructure.response.SuccessResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.info.BuildProperties;
-import org.springframework.boot.info.GitProperties;
-import org.springframework.boot.info.InfoProperties;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Map;
 
 @RestController
 @Slf4j
@@ -30,8 +27,14 @@ public class StarterController {
     }
 
     @GetMapping({"/timezone", "/time"})
-    public Map<String, String> getTimezone() {
-        return timeZoneHelper.getCurrentTimeZoneInfo();
+    public ResponseEntity<SuccessResponse<Object>> getTimezone() {
+        return ResponseEntity.ok(
+                SuccessResponse.builder()
+                        .status(HttpStatus.OK)
+                        .messageKey("response.user.created")
+                        .data(timeZoneHelper.getCurrentTimeZoneInfo())
+                        .build()
+        );
     }
 
     @PutMapping("/log-level")

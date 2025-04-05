@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import static com.gucardev.springbootstartertemplate.infrastructure.exception.helper.ExceptionUtil.buildException;
+import static com.gucardev.springbootstartertemplate.infrastructure.exception.helper.ExceptionUtil.buildSilentException;
 
 @Slf4j
 @Service
@@ -26,6 +27,7 @@ public class CreateUserUseCase implements UseCaseWithParamsAndReturn<UserCreateR
     public UserDto execute(UserCreateRequest params) {
         if (userRepository.existsByUsername(params.getUsername())) {
             throw buildException(ExceptionMessage.ALREADY_EXISTS_EXCEPTION);
+//            throw buildSilentException(ExceptionMessage.ALREADY_EXISTS_EXCEPTION);
         }
         var newUser = userMapper.toEntity(params);
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
