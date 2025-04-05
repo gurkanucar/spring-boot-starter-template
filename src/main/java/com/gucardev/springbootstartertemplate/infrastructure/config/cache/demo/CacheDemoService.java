@@ -9,6 +9,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -23,7 +24,7 @@ public class CacheDemoService {
     /**
      * Basic caching example using short-lived cache (default)
      */
-    @Cacheable(value = CacheNames.CACHE_MACHINE_PRODUCTS, key = "#id")
+    @Cacheable(value = CacheNames.CACHE_PRODUCTS, key = "#id")
     public String getProductData(String id) {
         log.info("Cache MISS for product ID: {} - This would be a database call", id);
         simulateSlowOperation();
@@ -68,7 +69,7 @@ public class CacheDemoService {
     /**
      * Cache eviction example - remove specific entry
      */
-    @CacheEvict(value = CacheNames.CACHE_MACHINE_PRODUCTS, key = "#id")
+    @CacheEvict(value = CacheNames.CACHE_PRODUCTS, key = "#id")
     public void invalidateProductCache(String id) {
         log.info("Invalidating cache for product ID: {}", id);
     }
@@ -97,7 +98,7 @@ public class CacheDemoService {
      * Clear all entries from multiple caches
      */
     @Caching(evict = {
-            @CacheEvict(value = CacheNames.CACHE_MACHINE_PRODUCTS, allEntries = true),
+            @CacheEvict(value = CacheNames.CACHE_PRODUCTS, allEntries = true),
             @CacheEvict(value = CacheNames.CACHE_USER_PREFERENCES, allEntries = true),
             @CacheEvict(value = CacheNames.CACHE_USER_SESSIONS, allEntries = true),
             @CacheEvict(value = CacheNames.CACHE_TEMPORARY_TOKENS, allEntries = true)
