@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HMAC Auth Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body>
+<h2>HMAC Signature Test</h2>
+<button onclick="makeRequest()">Send Signed Request</button>
+
+<script>
+    function makeRequest() {
+        const secret = "my_shared_secret";
+        const method = "GET";
+        const fullUrl = "http://localhost:8080/time";
+        const pathOnly = "/time"; // Sadece base URL sonrası
+        const body = "";
+        const timestamp = Date.now().toString();
+
+        const raw = `${method}|${pathOnly}|${timestamp}|${body}|${secret}`;
+        const hash = CryptoJS.SHA256(raw).toString();
+
+        fetch(fullUrl, {
+            method: method,
+            headers: {
+                "X-App-Timestamp": timestamp,
+                "X-App-Signature": hash
+            }
+        })
+            .then(res => res.text())
+            .then(data => alert("✅ Server Response:\n" + data))
+            .catch(err => alert("❌ Error: " + err));
+    }
+</script>
+</body>
+</html>
