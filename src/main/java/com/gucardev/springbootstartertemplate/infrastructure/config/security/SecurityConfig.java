@@ -44,7 +44,8 @@ public class SecurityConfig {
             "/h2-console/**",
             // Actuator endpoints
             "/git-information",
-            "/actuator/**"
+            "/actuator/**",
+            "/api/cache-demo/**"
     };
 
     private final AccessDeniedHandler accessDeniedHandler;

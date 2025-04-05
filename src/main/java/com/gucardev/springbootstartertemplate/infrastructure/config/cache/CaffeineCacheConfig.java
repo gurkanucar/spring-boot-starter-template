@@ -8,64 +8,41 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@Configuration
 //@EnableCaching
+@Configuration
 public class CaffeineCacheConfig {
 
-    @Value("${cache.short.ttl:60}")
-    private Integer shortTtlSeconds;
-
-    @Value("${cache.medium.ttl:120}")
-    private Integer mediumTtlSeconds;
-
-    @Value("${cache.default.max-size:1000}")
-    private Integer defaultMaxSize;
-
-    // Cache manager bean names
+    // Cache Manager Bean Names
     public static final String CACHE_MANAGER_SHORT_LIVED = "shortLivedCacheManager";
     public static final String CACHE_MANAGER_MEDIUM_LIVED = "mediumLivedCacheManager";
 
-    // Cache names
-    public static final String CACHE_MACHINE_PRODUCTS = "machine_products";
-    public static final String CACHE_USER_PREFERENCES = "user_preferences";
-
-    // Lists of cache names managed by each cache manager
-    private static final List<String> SHORT_LIVED_CACHES = Arrays.asList(
-            "user_sessions",
-            "temporary_tokens"
-    );
-
-    private static final List<String> MEDIUM_LIVED_CACHES = Arrays.asList(
-            CACHE_MACHINE_PRODUCTS,
-            CACHE_USER_PREFERENCES
-    );
-
     @Primary
     @Bean(CACHE_MANAGER_SHORT_LIVED)
-    public CacheManager shortLivedCacheManager() {
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager();
-        cacheManager.setCacheNames(SHORT_LIVED_CACHES);
-        cacheManager.setCaffeine(buildCacheSpec(shortTtlSeconds, defaultMaxSize));
-        return cacheManager;
+    public CacheManager shortLivedCacheManager(
+            @Value("${cache.short.ttl:60}") int shortTtlSeconds,
+            @Value("${cache.default.max-size:1000}") int defaultMaxSize
+    ) {
+        return buildCacheManager(shortTtlSeconds, defaultMaxSize);
     }
 
     @Bean(CACHE_MANAGER_MEDIUM_LIVED)
-    public CacheManager mediumLivedCacheManager() {
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager();
-        cacheManager.setCacheNames(MEDIUM_LIVED_CACHES);
-        cacheManager.setCaffeine(buildCacheSpec(mediumTtlSeconds, defaultMaxSize));
-        return cacheManager;
+    public CacheManager mediumLivedCacheManager(
+            @Value("${cache.medium.ttl:120}") int mediumTtlSeconds,
+            @Value("${cache.default.max-size:1000}") int defaultMaxSize
+    ) {
+        return buildCacheManager(mediumTtlSeconds, defaultMaxSize);
     }
 
-    private Caffeine<Object, Object> buildCacheSpec(Integer ttlSeconds, Integer maxSize) {
-        return Caffeine.newBuilder()
-                .maximumSize(maxSize)
-                .expireAfterWrite(ttlSeconds, TimeUnit.SECONDS)
-//                .recordStats()
-                ;
+    private CacheManager buildCacheManager(int ttlSeconds, int maxSize) {
+        CaffeineCacheManager cacheManager = new CaffeineCacheManager();
+        cacheManager.setCacheNames(CacheNames.getAllCacheNames());
+        cacheManager.setCaffeine(
+                Caffeine.newBuilder()
+                        .expireAfterWrite(ttlSeconds, TimeUnit.SECONDS)
+                        .maximumSize(maxSize)
+        );
+        return cacheManager;
     }
 }
