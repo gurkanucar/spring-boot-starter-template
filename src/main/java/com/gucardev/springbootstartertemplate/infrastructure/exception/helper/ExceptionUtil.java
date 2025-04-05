@@ -20,15 +20,22 @@ public class ExceptionUtil {
     }
 
     public static CustomException buildException(ExceptionMessage ex, Object... args) {
-        String errorMessage =
-                MessageUtil.getMessage(ex.getKey(), args);
+        String errorMessage = MessageUtil.getMessage(ex.getKey(), args);
         return new CustomException(errorMessage, ex.getStatus());
     }
 
     public static CustomException buildException(ExceptionMessage ex) {
-        String errorMessage =
-                MessageUtil.getMessage(ex.getKey());
+        String errorMessage = MessageUtil.getMessage(ex.getKey());
         return new CustomException(errorMessage, ex.getStatus());
     }
 
+    public static CustomException buildSilentException(ExceptionMessage ex) {
+        String errorMessage = MessageUtil.getMessage(ex.getKey());
+        return new CustomException(errorMessage, ex.getStatus(), false);
+    }
+
+    public static CustomException buildSilentException(ExceptionMessage ex, Object... args) {
+        String errorMessage = MessageUtil.getMessage(ex.getKey(), args);
+        return new CustomException(errorMessage, ex.getStatus(), false);
+    }
 }

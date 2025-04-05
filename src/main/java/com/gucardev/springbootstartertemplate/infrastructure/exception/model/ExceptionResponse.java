@@ -16,14 +16,13 @@ import java.util.Map;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-        "error",
-        "status",
-        "message",
         "traceId",
         "path",
+        "status",
+        "message",
         "time",
+        "hasValidationErrors",
         "validationErrors",
-        "hasValidationErrors"
 })
 @ToString
 public class ExceptionResponse {
