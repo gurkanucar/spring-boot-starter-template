@@ -2,35 +2,252 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HMAC Auth Test</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        :root {
+            --primary: #3498db;
+            --primary-dark: #2980b9;
+            --success: #2ecc71;
+            --error: #e74c3c;
+            --dark: #34495e;
+            --light: #ecf0f1;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: var(--light);
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            margin-bottom: 1.5rem;
+            color: var(--primary-dark);
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 0.5rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px var(--shadow);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+
+        input {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            background-color: var(--primary);
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px var(--shadow);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #response {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 4px;
+            min-height: 100px;
+            background-color: #f8f9fa;
+            border-left: 4px solid var(--primary);
+            font-family: monospace;
+            overflow-x: auto;
+        }
+
+        .success {
+            color: var(--success);
+        }
+
+        .error {
+            color: var(--error);
+        }
+
+        pre {
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
-<h2>HMAC Signature Test</h2>
-<button onclick="makeRequest()">Send Signed Request</button>
+<h2>HMAC Authentication</h2>
+
+<div class="card">
+    <div class="input-group">
+        <label for="token">API Token:</label>
+        <input type="text" id="token" placeholder="Enter your token" />
+    </div>
+
+    <div class="input-group">
+        <label for="endpoint">Endpoint:</label>
+        <input type="text" id="endpoint" value="/api/v1/products/search" />
+    </div>
+
+    <div class="button-group">
+        <button onclick="makeGetRequest()">Send Authenticated Request</button>
+        <button onclick="makeRequestWithoutAuth()">Send Unauthenticated Request</button>
+    </div>
+</div>
+
+<div id="response"></div>
 
 <script>
-    function makeRequest() {
-        const secret = "my_shared_secret";
+    // Generate a random string for use as a nonce to prevent replay attacks
+    function generateNonce(length = 16) {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        for (let i = 0; i < length; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    }
+
+    // Create signature for request using HMAC-SHA256 with Authorization header as secret
+    function createSignature(method, path, timestamp, nonce, body, token) {
+        // Create authorization header with Bearer prefix
+        const authHeader = `Bearer ${token}`;
+        const raw = `${method}|${path}|${timestamp}|${nonce}|${body}`;
+        // Using Authorization header value as the secret key
+        const hmac = CryptoJS.HmacSHA256(raw, authHeader);
+        // Convert to Base64 for more efficient transfer
+        return CryptoJS.enc.Base64.stringify(hmac);
+    }
+
+    // Display response with better UI feedback - truncating newlines
+    function displayResponse(data, error = false) {
+        const responseDiv = document.getElementById('response');
+        // Replace newlines with spaces for more compact display
+        const formattedData = typeof data === 'string' ? data.replace(/\n/g, ' ') : data;
+        responseDiv.innerHTML = `<pre class="${error ? 'error' : 'success'}">${error ? '❌ Error: ' : '✅ Success: '}${formattedData}</pre>`;
+    }
+
+    // Get base URL from current location
+    function getBaseUrl() {
+        return `http://localhost:8080`;
+    }
+
+    // Send a signed GET request
+    function makeGetRequest() {
+        const token = document.getElementById('token').value;
+        const endpoint = document.getElementById('endpoint').value;
         const method = "GET";
-        const fullUrl = "http://localhost:8080/time";
-        const pathOnly = "/time"; // Sadece base URL sonrası
+        const fullUrl = `${getBaseUrl()}${endpoint}`;
         const body = "";
         const timestamp = Date.now().toString();
+        const nonce = generateNonce();
+        const authHeader = `Bearer ${token}`;
 
-        const raw = `${method}|${pathOnly}|${timestamp}|${body}|${secret}`;
-        const hash = CryptoJS.SHA256(raw).toString();
+        // Create signature using token
+        const signature = createSignature(method, endpoint, timestamp, nonce, body, token);
+
+        // Display request information
+        displayResponse(`Sending ${method} to ${fullUrl} Timestamp: ${timestamp} Nonce: ${nonce}`);
 
         fetch(fullUrl, {
             method: method,
             headers: {
+                "Authorization": authHeader,
                 "X-App-Timestamp": timestamp,
-                "X-App-Signature": hash
+                "X-App-Nonce": nonce,
+                "X-App-Signature": signature
             }
         })
-            .then(res => res.text())
-            .then(data => alert("✅ Server Response:\n" + data))
-            .catch(err => alert("❌ Error: " + err));
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`Server responded with ${res.status}: ${res.statusText}`);
+                }
+                return res.text();
+            })
+            .then(data => displayResponse(data))
+            .catch(err => displayResponse(err.message, true));
+    }
+
+    // Send a request without authentication
+    function makeRequestWithoutAuth() {
+        const endpoint = document.getElementById('endpoint').value;
+        const method = "GET";
+        const fullUrl = `${getBaseUrl()}${endpoint}`;
+
+        // Display request information
+        displayResponse(`Sending ${method} to ${fullUrl} WITHOUT authentication`);
+
+        fetch(fullUrl, {
+            method: method
+        })
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`Server responded with ${res.status}: ${res.statusText}`);
+                }
+                return res.text();
+            })
+            .then(data => displayResponse(data))
+            .catch(err => displayResponse(err.message, true));
     }
 </script>
 </body>
