@@ -11,10 +11,17 @@ import java.util.Base64;
 import java.util.stream.Collectors;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+
+import java.util.Map;
+
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class HmacAuthService {
-    private static final long TIMESTAMP_TOLERANCE_MS = 3_000; // X seconds tolerance
+    private static final long TIMESTAMP_TOLERANCE_MS = 5_000; // 5 seconds tolerance
+    private final ObjectMapper objectMapper;
 
     /**
      * Validates the signature from the incoming request
@@ -30,50 +37,71 @@ public class HmacAuthService {
             return true;
         }
 
-        String method = request.getMethod();
-        String uri = request.getRequestURI();
-        String timestamp = request.getHeader("X-App-Timestamp");
-        String nonce = request.getHeader("X-App-Nonce");
-        String signature = request.getHeader("X-App-Signature");
-
-        // Validate required headers
-        if (timestamp == null || signature == null || nonce == null) {
-            log.warn("Missing required headers for HMAC authentication");
+        // Get the combined X-App-Signature header
+        String combinedAuthHeader = request.getHeader("X-App-Signature");
+        if (combinedAuthHeader == null || combinedAuthHeader.isEmpty()) {
+            log.warn("Missing X-App-Signature header for HMAC authentication");
             return false;
         }
 
-        // Validate timestamp
-        if (!isTimestampValid(timestamp)) {
-            log.warn("Invalid timestamp: {}", timestamp);
-            return false;
-        }
+        try {
+            // Decode Base64
+            byte[] decodedBytes = Base64.getDecoder().decode(combinedAuthHeader);
+            String decodedJson = new String(decodedBytes);
 
-        // Get request body for non-GET requests
-        String body = "";
-        if (!method.equals("GET")) {
-            try {
-                // Read the body for POST/PUT requests
-                body = request.getReader().lines().collect(Collectors.joining());
-            } catch (IOException e) {
-                log.error("Failed to read request body", e);
+            // Parse JSON to Map
+            var authComponents = objectMapper.readValue(decodedJson, Map.class);
+
+            String timestamp = authComponents.get("timestamp").toString();
+            String nonce = authComponents.get("nonce").toString();
+            String providedSignature = authComponents.get("signature").toString();
+
+            // Validate required components
+            if (timestamp == null || nonce == null || providedSignature == null) {
+                log.warn("Missing required components in X-App-Signature header");
                 return false;
             }
+
+            // Validate timestamp
+            if (!isTimestampValid(timestamp)) {
+                log.warn("Invalid timestamp: {}", timestamp);
+                return false;
+            }
+
+            String method = request.getMethod();
+            String uri = request.getRequestURI();
+
+            // Get request body for non-GET requests
+            String body = "";
+            if (!method.equals("GET")) {
+                try {
+                    // Read the body for POST/PUT requests
+                    body = request.getReader().lines().collect(Collectors.joining());
+                } catch (IOException e) {
+                    log.error("Failed to read request body", e);
+                    return false;
+                }
+            }
+
+            // Generate expected signature using Authorization header as secret
+            String raw = String.format("%s|%s|%s|%s|%s", method, uri, timestamp, nonce, body);
+
+            // Use HMAC-SHA256 with Authorization header as the secret key
+            String expectedSignature = Base64.getEncoder().encodeToString(
+                    HmacUtils.hmacSha256(authHeader, raw)
+            );
+
+            boolean isValid = expectedSignature.equals(providedSignature);
+            if (!isValid) {
+                log.warn("Invalid signature for request to {}", uri);
+            }
+
+            return isValid;
+
+        } catch (Exception e) {
+            log.error("Error validating HMAC signature", e);
+            return false;
         }
-
-        // Generate expected signature using Authorization header as secret
-        String raw = String.format("%s|%s|%s|%s|%s", method, uri, timestamp, nonce, body);
-
-        // Use HMAC-SHA256 with Authorization header as the secret key
-        String expectedSignature = Base64.getEncoder().encodeToString(
-                HmacUtils.hmacSha256(authHeader, raw)
-        );
-
-        boolean isValid = expectedSignature.equals(signature);
-        if (!isValid) {
-            log.warn("Invalid signature for request to {}", uri);
-        }
-
-        return isValid;
     }
 
     /**

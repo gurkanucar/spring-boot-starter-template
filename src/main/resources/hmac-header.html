@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HMAC Auth Test</title>
+    <title>Simplified HMAC Auth</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
         :root {
@@ -136,7 +136,7 @@
     </style>
 </head>
 <body>
-<h2>HMAC Authentication</h2>
+<h2>Simplified HMAC Authentication</h2>
 
 <div class="card">
     <div class="input-group">
@@ -168,18 +168,41 @@
         return result;
     }
 
-    // Create signature for request using HMAC-SHA256 with Authorization header as secret
-    function createSignature(method, path, timestamp, nonce, body, token) {
-        // Create authorization header with Bearer prefix
-        const authHeader = `Bearer ${token}`;
+    // Create the combined signature header with all components
+    function createCombinedAuthHeader(method, path, body, token) {
+        // Create the components
+        const timestamp = Date.now().toString();
+        const nonce = generateNonce();
+        const authValue = `Bearer ${token}`;
+
+        // Create raw string to sign
         const raw = `${method}|${path}|${timestamp}|${nonce}|${body}`;
-        // Using Authorization header value as the secret key
-        const hmac = CryptoJS.HmacSHA256(raw, authHeader);
-        // Convert to Base64 for more efficient transfer
-        return CryptoJS.enc.Base64.stringify(hmac);
+
+        // Generate HMAC signature
+        const hmac = CryptoJS.HmacSHA256(raw, authValue);
+        const signature = CryptoJS.enc.Base64.stringify(hmac);
+
+        // Combine all components into a single Base64 encoded string
+        const authComponents = {
+            timestamp: timestamp,
+            nonce: nonce,
+            signature: signature
+        };
+
+        // Convert to JSON and Base64 encode
+        const jsonComponents = JSON.stringify(authComponents);
+        const encodedComponents = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(jsonComponents));
+
+        return {
+            authHeader: authValue,
+            combinedHeader: encodedComponents,
+            timestamp: timestamp,
+            nonce: nonce,
+            signature: signature
+        };
     }
 
-    // Display response with better UI feedback - truncating newlines
+    // Display response with better UI feedback
     function displayResponse(data, error = false) {
         const responseDiv = document.getElementById('response');
         // Replace newlines with spaces for more compact display
@@ -192,30 +215,29 @@
         return `http://localhost:8080`;
     }
 
-    // Send a signed GET request
+    // Send a signed GET request with combined header
     function makeGetRequest() {
         const token = document.getElementById('token').value;
         const endpoint = document.getElementById('endpoint').value;
         const method = "GET";
         const fullUrl = `${getBaseUrl()}${endpoint}`;
         const body = "";
-        const timestamp = Date.now().toString();
-        const nonce = generateNonce();
-        const authHeader = `Bearer ${token}`;
 
-        // Create signature using token
-        const signature = createSignature(method, endpoint, timestamp, nonce, body, token);
+        // Create the combined header
+        const authData = createCombinedAuthHeader(method, endpoint, body, token);
 
         // Display request information
-        displayResponse(`Sending ${method} to ${fullUrl} Timestamp: ${timestamp} Nonce: ${nonce}`);
+        displayResponse(`Sending ${method} to ${fullUrl}
+        Timestamp: ${authData.timestamp}
+        Nonce: ${authData.nonce}
+        Authorization: ${authData.authHeader}
+        X-App-Signature: ${authData.combinedHeader}`);
 
         fetch(fullUrl, {
             method: method,
             headers: {
-                "Authorization": authHeader,
-                "X-App-Timestamp": timestamp,
-                "X-App-Nonce": nonce,
-                "X-App-Signature": signature
+                "Authorization": authData.authHeader,
+                "X-App-Signature": authData.combinedHeader
             }
         })
             .then(res => {
