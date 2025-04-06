@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Encryption Demo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.2.1/jsencrypt.min.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 2rem;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            color: var(--secondary);
+            margin: 1.5rem 0 1rem;
+            font-weight: 500;
+        }
+
+        h3 {
+            color: var(--gray);
+            margin: 1.5rem 0 1rem;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+
+        .section {
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--gray);
+        }
+
+        input[type="text"] {
+            padding: 0.75rem;
+            border: 1px solid #ced4da;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        input[readonly] {
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+        }
+
+        .btn {
+            display: inline-block;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            background-color: var(--primary);
+            color: white;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-send {
+            background-color: var(--success);
+        }
+
+        .btn-send:hover {
+            background-color: #3da8cc;
+        }
+
+        .url-display {
+            margin: 1rem 0;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--success);
+            word-break: break-all;
+        }
+
+        .url-label {
+            font-weight: bold;
+            color: var(--gray);
+        }
+
+        .response-container {
+            margin-top: 2rem;
+        }
+
+        pre {
+            background-color: var(--dark);
+            color: white;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            white-space: pre-wrap;
+            overflow-x: auto;
+            min-height: 100px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .container {
+                padding: 1.5rem;
+            }
+
+            .section {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>URL Encryption Demo</h1>
+
+    <div class="section">
+        <h2>Encrypt URL</h2>
+        <div class="form-group">
+            <label for="baseUrl">Base URL:</label>
+            <input type="text" id="baseUrl" value="/time">
+        </div>
+        <div class="form-group">
+            <label for="params">URL Parameters:</label>
+            <input type="text" id="params" value="param1=qwe">
+        </div>
+        <button class="btn" onclick="encryptUrl()">Encrypt URL</button>
+
+        <h3>Result:</h3>
+        <div class="form-group">
+            <label for="encryptedUrl">Encrypted URL:</label>
+            <input type="text" id="encryptedUrl" readonly>
+        </div>
+        <div class="url-display">
+            <span class="url-label">Full URL:</span>
+            <span id="fullUrl"></span>
+        </div>
+        <button class="btn btn-send" onclick="sendRequest()">Send GET Request</button>
+    </div>
+
+    <div class="response-container">
+        <h2>Response from Server:</h2>
+        <pre id="responseData">// Response will appear here after sending a request</pre>
+    </div>
+</div>
+
+<script>
+    function encryptUrl() {
+        const baseUrl = document.getElementById('baseUrl').value;
+        const params = document.getElementById('params').value;
+        const url = baseUrl + "?" + params;
+
+        // Get the public key from the server
+        fetch('http://localhost:8080/public-key')
+            .then(response => response.text())
+            .then(publicKey => {
+                const encrypt = new JSEncrypt();
+                encrypt.setPublicKey(publicKey);
+
+                // Encrypt the URL
+                const encryptedUrl = encrypt.encrypt(url);
+
+                // Make sure to properly handle the base64 encoding for URL parameters
+                // Use encodeURIComponent to ensure special characters are properly encoded
+                const encodedUrl = encodeURIComponent(encryptedUrl);
+
+                // Set the result URL
+                const resultUrl = "http://localhost:8080/api/secure?val=" + encodedUrl;
+                document.getElementById('encryptedUrl').value = resultUrl;
+                document.getElementById('fullUrl').innerText = resultUrl;
+            });
+    }
+
+    function sendRequest() {
+        const url = document.getElementById('encryptedUrl').value;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('responseData').textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                document.getElementById('responseData').textContent = 'Error: ' + error.message;
+            });
+    }
+</script>
+</body>
+</html>

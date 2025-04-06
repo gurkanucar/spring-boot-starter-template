@@ -1,6 +1,7 @@
 package com.gucardev.springbootstartertemplate.infrastructure.config.starter;
 
 
+import com.gucardev.springbootstartertemplate.infrastructure.filter.pbkeyurl.RSAKeyGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ public class StarterController {
 
     private final TimeZoneHelper timeZoneHelper;
     private final LoggingSettingsHelper loggingSettingsHelper;
+    private final RSAKeyGenerator rsaKeyGenerator;
 //    private final GitProperties gitProperties;
 //    private final BuildProperties buildProperties;
 
@@ -29,6 +31,16 @@ public class StarterController {
     @GetMapping({"/timezone", "/time"})
     public Map<String, String> getTimezone() {
         return timeZoneHelper.getCurrentTimeZoneInfo();
+    }
+
+
+    @GetMapping(value = "/public-key")
+    public String getPublicKey() {
+        // Convert the public key to PEM format
+        String publicKeyBase64 = rsaKeyGenerator.getEncodedPublicKey();
+        return "-----BEGIN PUBLIC KEY-----\n" +
+                publicKeyBase64 +
+                "\n-----END PUBLIC KEY-----";
     }
 
     @PutMapping("/log-level")
