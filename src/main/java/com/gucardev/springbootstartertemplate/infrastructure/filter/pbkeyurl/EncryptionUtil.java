@@ -11,7 +11,8 @@ public class EncryptionUtil {
 
     public String decrypt(String encryptedData, PrivateKey privateKey) {
         try {
-            // Handle URL safe Base64 characters
+            // If for some reason spaces were encoded as spaces (instead of +),
+            // fix them prior to Base64 decoding:
             encryptedData = encryptedData.replace(" ", "+");
 
             Cipher cipher = Cipher.getInstance("RSA");

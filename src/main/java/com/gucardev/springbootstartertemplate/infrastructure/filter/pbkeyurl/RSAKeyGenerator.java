@@ -22,7 +22,7 @@ public class RSAKeyGenerator {
     @PostConstruct
     public void init() throws NoSuchAlgorithmException {
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-        keyPairGenerator.initialize(2048);
+        keyPairGenerator.initialize(512);
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
 
         this.publicKey = keyPair.getPublic();
