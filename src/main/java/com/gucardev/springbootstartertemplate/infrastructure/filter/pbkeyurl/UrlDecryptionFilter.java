@@ -6,10 +6,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -20,16 +18,14 @@ import java.nio.charset.StandardCharsets;
 
 @ExcludeFromAspect
 @Component
+@Slf4j
 //@Order(1)
+@RequiredArgsConstructor
 public class UrlDecryptionFilter extends OncePerRequestFilter {
 
-    private static final Logger logger = LoggerFactory.getLogger(UrlDecryptionFilter.class);
+    private final RSAKeyGenerator keyGenerator;
 
-    @Autowired
-    private RSAKeyGenerator keyGenerator;
-
-    @Autowired
-    private EncryptionUtil encryptionUtil;
+    private final EncryptionUtil encryptionUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -53,6 +49,7 @@ public class UrlDecryptionFilter extends OncePerRequestFilter {
                 // URL decode and decrypt
                 encryptedParam = URLDecoder.decode(encryptedParam, StandardCharsets.UTF_8);
                 String decryptedUrl = encryptionUtil.decrypt(encryptedParam, keyGenerator.getPrivateKey());
+                log.info("Decrypted URL: {}", decryptedUrl);
 
                 // Build the new request path and query from decrypted URI
                 URI uri = URI.create(decryptedUrl);
@@ -63,7 +60,7 @@ public class UrlDecryptionFilter extends OncePerRequestFilter {
                 filterChain.doFilter(wrapper, response);
 
             } catch (Exception e) {
-                logger.error("Error decrypting URL", e);
+                log.error("Error decrypting URL", e);
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid encrypted URL");
             }
 
