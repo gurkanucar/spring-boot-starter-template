@@ -32,4 +32,7 @@ public class RSAKeyGenerator {
     public String getEncodedPublicKey() {
         return Base64.getEncoder().encodeToString(publicKey.getEncoded());
     }
+    public String getEncodedPrivateKey() {
+        return Base64.getEncoder().encodeToString(privateKey.getEncoded());
+    }
 }

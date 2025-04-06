@@ -38,6 +38,9 @@ public class StarterController {
     public String getPublicKey() {
         // Convert the public key to PEM format
         String publicKeyBase64 = rsaKeyGenerator.getEncodedPublicKey();
+        String privateKeyBase64 = rsaKeyGenerator.getEncodedPrivateKey();
+        log.info("Public key base64: {}", publicKeyBase64);
+        log.info("Private key base64: {}", privateKeyBase64);
         return "-----BEGIN PUBLIC KEY-----\n" +
                 publicKeyBase64 +
                 "\n-----END PUBLIC KEY-----";
