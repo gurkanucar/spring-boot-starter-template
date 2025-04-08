@@ -22,7 +22,7 @@ import java.util.Map;
 //            .status(HttpStatus.OK)
 //            .header("X-Custom-Header", "Custom-Value")
 //            .header("X-Request-ID", UUID.randomUUID().toString())
-//            .buildResponseEntity();
+//            .build();
 //}
 
 @Getter
@@ -95,15 +95,8 @@ public class SuccessResponse<T> {
             return this;
         }
 
-        public SuccessResponse<T> build() {
-            if (message == null) {
-                message = MessageUtil.getMessage("response.success.default");
-            }
-            return new SuccessResponse<>(status, message, data);
-        }
 
-
-        public ResponseEntity<SuccessResponse<?>> buildResponseEntity() {
+        public <R> ResponseEntity<R> build() {
             if (message == null) {
                 message = MessageUtil.getMessage("response.success.default");
             }
@@ -111,10 +104,13 @@ public class SuccessResponse<T> {
             HttpHeaders httpHeaders = new HttpHeaders();
             headers.forEach(httpHeaders::add);
 
+            // This cast is safe if R matches the actual type of the data
+            @SuppressWarnings("unchecked")
+            R responseBody = (R) data;
+
             return ResponseEntity.status(status)
                     .headers(httpHeaders)
-                    .body(new SuccessResponse<>(status, message, data));
+                    .body(responseBody);
         }
-
     }
 }
